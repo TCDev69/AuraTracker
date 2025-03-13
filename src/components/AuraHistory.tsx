@@ -46,13 +46,15 @@ export default function AuraHistory({ userId }: AuraHistoryProps) {
     switch (status) {
       case 'approved':
         return (
-          <div className={`p-2 rounded-full ${
+            <div className={`p-2 rounded-full ${
             value > 0 ? 'bg-green-100' : 'bg-red-100'
-          }`}>
-            <ThumbsUp className={`w-5 h-5 ${
-              value > 0 ? 'text-green-600' : 'text-red-600'
-            }`} />
-          </div>
+            }`}>
+            {value > 0 ? (
+              <ThumbsUp className="w-5 h-5 text-green-600" />
+            ) : (
+              <ThumbsDown className="w-5 h-5 text-red-600" />
+            )}
+            </div>
         );
       case 'rejected':
         return (
