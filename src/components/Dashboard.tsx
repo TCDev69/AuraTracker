@@ -190,6 +190,17 @@ export default function Dashboard() {
     );
   }
 
+  const formatAura = (aura) => {
+    if (aura >= 1_000_000_000) {
+      return (aura / 1_000_000_000).toFixed(1) + 'b'; // Billion
+    } else if (aura >= 1_000_000) {
+      return (aura / 1_000_000).toFixed(1) + 'm'; // Million
+    } else if (aura >= 1_000) {
+      return (aura / 1_000).toFixed(1) + 'k'; // Thousand
+    }
+    return aura.toString(); // For values less than 1000
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -235,7 +246,7 @@ export default function Dashboard() {
                   ? 'bg-red-100 text-red-600'
                   : 'bg-purple-100 text-purple-600'
               }`}>
-                {profile?.aura && profile.aura > 0 ? '+' : ''}{profile?.aura || 0}
+                {profile?.aura && profile.aura > 0 ? '+' : ''}{formatAura(profile?.aura || 0)}
               </div>
               <p className="text-sm text-center text-gray-500">
                 La tua aura rappresenta la tua presenza e carisma, votata dai tuoi amici.
@@ -349,7 +360,7 @@ export default function Dashboard() {
                                     ? 'bg-red-100 text-red-700'
                                     : 'bg-gray-100 text-gray-700'
                                 }`}>
-                                  {friend.aura > 0 ? '+' : ''}{friend.aura}
+                                  {friend?.aura && friend.aura > 0 ? '+' : ''}{formatAura(friend?.aura || 0)}
                                 </div>
                                 <div className="flex space-x-2">
                                   <button

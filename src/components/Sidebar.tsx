@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Crown, UserPlus, Menu, X, UserCog, Bell } from 'lucide-react';
-import { CombinedFriend, FriendRequest } from '../types';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
-import FriendInviteModal from './FriendInviteModal';
-import AddOfflineFriendModal from './AddOfflineFriendModal';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Crown, UserPlus, Menu, X, UserCog, Bell } from "lucide-react";
+import { CombinedFriend, FriendRequest } from "../types";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
+import FriendInviteModal from "./FriendInviteModal";
+import AddOfflineFriendModal from "./AddOfflineFriendModal";
 
 interface SidebarProps {
   combinedFriends: CombinedFriend[];
   onFriendAdded: () => void;
 }
 
-export default function Sidebar({ combinedFriends, onFriendAdded }: SidebarProps) {
+export default function Sidebar({
+  combinedFriends,
+  onFriendAdded,
+}: SidebarProps) {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -25,17 +28,17 @@ export default function Sidebar({ combinedFriends, onFriendAdded }: SidebarProps
 
   useEffect(() => {
     fetchPendingRequests();
-    
+
     // Set up real-time subscription for friend requests
     const channel = supabase
-      .channel('friend_requests_changes')
+      .channel("friend_requests_changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'friend_requests',
-          filter: `recipient_id=eq.${user?.id}`
+          event: "*",
+          schema: "public",
+          table: "friend_requests",
+          filter: `recipient_id=eq.${user?.id}`,
         },
         () => {
           fetchPendingRequests();
@@ -50,21 +53,23 @@ export default function Sidebar({ combinedFriends, onFriendAdded }: SidebarProps
 
   const fetchPendingRequests = async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
-        .from('friend_requests')
-        .select(`
+        .from("friend_requests")
+        .select(
+          `
           *,
           sender:profiles!friend_requests_sender_id_fkey(*)
-        `)
-        .eq('recipient_id', user.id)
-        .eq('status', 'pending');
+        `
+        )
+        .eq("recipient_id", user.id)
+        .eq("status", "pending");
 
       if (error) throw error;
       setPendingRequests(data || []);
     } catch (err) {
-      console.error('Error fetching pending requests:', err);
+      console.error("Error fetching pending requests:", err);
     }
   };
 
@@ -73,6 +78,17 @@ export default function Sidebar({ combinedFriends, onFriendAdded }: SidebarProps
     setShowAddOfflineModal(false);
     onFriendAdded();
     fetchPendingRequests();
+  };
+
+  const formatAura = (aura) => {
+    if (aura >= 1_000_000_000) {
+      return (aura / 1_000_000_000).toFixed(1) + "b"; // Billion
+    } else if (aura >= 1_000_000) {
+      return (aura / 1_000_000).toFixed(1) + "m"; // Million
+    } else if (aura >= 1_000) {
+      return (aura / 1_000).toFixed(1) + "k"; // Thousand
+    }
+    return aura.toString(); // For values less than 1000
   };
 
   return (
@@ -90,7 +106,7 @@ export default function Sidebar({ combinedFriends, onFriendAdded }: SidebarProps
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
         <div className="flex flex-col h-full">
@@ -108,7 +124,9 @@ export default function Sidebar({ combinedFriends, onFriendAdded }: SidebarProps
                 <div className="flex items-center">
                   <Bell className="w-5 h-5 text-purple-600 mr-2" />
                   <span className="text-purple-700 font-medium">
-                    {pendingRequests.length} {pendingRequests.length === 1 ? 'richiesta' : 'richieste'} di amicizia
+                    {pendingRequests.length}{" "}
+                    {pendingRequests.length === 1 ? "richiesta" : "richieste"}{" "}
+                    di amicizia
                   </span>
                 </div>
                 <span className="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full">
@@ -153,11 +171,15 @@ export default function Sidebar({ combinedFriends, onFriendAdded }: SidebarProps
                             <Crown className="w-4 h-4 ml-1 text-yellow-500" />
                           )}
                           {friend.is_offline && (
-                            <span className="ml-1 w-2 h-2 bg-gray-300 rounded-full" title="Amico offline"></span>
+                            <span
+                              className="ml-1 w-2 h-2 bg-gray-300 rounded-full"
+                              title="Amico offline"
+                            ></span>
                           )}
                         </div>
                         <p className="text-sm text-gray-500 truncate">
-                          Aura: {friend.aura}
+                          Aura: {friend?.aura && friend.aura > 0 ? "+" : ""}
+                          {formatAura(friend?.aura || 0)}
                         </p>
                       </div>
                     </div>
