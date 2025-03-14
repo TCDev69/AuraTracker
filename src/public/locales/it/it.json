@@ -6,5 +6,9 @@
   "classifiche": "Classifiche",
   "storico": "Storico",
   "noFriends": "Nessun amico",
-  "addFriends": "Aggiungi amici tramite la sidebar per iniziare a tracciare la loro aura!"
+  "addFriends": "Aggiungi amici tramite la sidebar per iniziare a tracciare la loro aura!",
+  "propose": "Proponi",
+  "deleteOfflineFriends": "Elimina amici offline",
+  "globalLeaderboard": "Classifica globale",
+  "friendsLeaderboard": "Classifica amici"
 }

@@ -401,7 +401,7 @@ export default function Dashboard() {
                                     className="px-3 py-1 text-sm text-white bg-purple-600 rounded hover:bg-purple-700"
                                     title="Proponi modifica aura"
                                   >
-                                    Proponi
+                                    {t('propose')}
                                   </button>
                                   {friend.is_offline && (
                                     <button
@@ -409,7 +409,7 @@ export default function Dashboard() {
                                         deleteOfflineFriend(friend.id)
                                       }
                                       className="px-2 py-1 text-sm text-white bg-gray-500 rounded hover:bg-gray-600"
-                                      title="Elimina amico offline"
+                                      title={t("deleteOfflineFriends")}
                                     >
                                       X
                                     </button>
@@ -435,12 +435,12 @@ export default function Dashboard() {
               {activeTab === "leaderboard" && (
                 <div className="space-y-8">
                   <Leaderboard
-                    title="Classifica Globale"
+                    title={t('globalLeaderboard')}
                     users={globalUsers}
                     isGlobal={true}
                   />
                   <Leaderboard
-                    title="Classifica Amici"
+                    title={t('friendsLeaderboard')}
                     users={combinedFriends}
                   />
                 </div>
