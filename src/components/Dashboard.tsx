@@ -1,14 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
-import { User, Friend, OfflineFriend, CombinedFriend } from '../types';
-import { UserPlus, Users, LogOut, Award, ListPlus, History } from 'lucide-react';
-import Sidebar from './Sidebar';
-import ProfilePhotoUploader from './ProfilePhotoUploader';
-import AuraProposalModal from './AuraProposalModal';
-import ProposalsList from './ProposalsList';
-import Leaderboard from './Leaderboard';
-import AuraHistory from './AuraHistory';
+import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
+import { User, Friend, OfflineFriend, CombinedFriend } from "../types";
+import {
+  UserPlus,
+  Users,
+  LogOut,
+  Award,
+  ListPlus,
+  History,
+} from "lucide-react";
+import Sidebar from "./Sidebar";
+import ProfilePhotoUploader from "./ProfilePhotoUploader";
+import AuraProposalModal from "./AuraProposalModal";
+import ProposalsList from "./ProposalsList";
+import Leaderboard from "./Leaderboard";
+import AuraHistory from "./AuraHistory";
+import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -19,9 +28,14 @@ export default function Dashboard() {
   const [globalUsers, setGlobalUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedFriend, setSelectedFriend] = useState<CombinedFriend | null>(null);
+  const [selectedFriend, setSelectedFriend] = useState<CombinedFriend | null>(
+    null
+  );
   const [showProposalModal, setShowProposalModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'friends' | 'proposals' | 'leaderboard' | 'history'>('friends');
+  const [activeTab, setActiveTab] = useState<
+    "friends" | "proposals" | "leaderboard" | "history"
+  >("friends");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (user) {
@@ -36,11 +50,11 @@ export default function Dashboard() {
         fetchProfile(),
         fetchFriends(),
         fetchOfflineFriends(),
-        fetchGlobalUsers()
+        fetchGlobalUsers(),
       ]);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Errore nel caricamento dei dati');
+      console.error("Error fetching data:", error);
+      setError("Errore nel caricamento dei dati");
     } finally {
       setLoading(false);
     }
@@ -49,47 +63,47 @@ export default function Dashboard() {
   useEffect(() => {
     // Combine online and offline friends
     const combined: CombinedFriend[] = [
-      ...friends.map(f => ({
+      ...friends.map((f) => ({
         id: f.friend_id,
         name: f.friend.username,
         aura: f.friend.aura,
         avatar: f.friend.avatar,
         is_offline: false,
-        created_at: f.created_at
+        created_at: f.created_at,
       })),
-      ...offlineFriends.map(f => ({
+      ...offlineFriends.map((f) => ({
         id: f.id,
         name: f.name,
         aura: f.aura,
         avatar: f.avatar,
         is_offline: true,
-        created_at: f.created_at
-      }))
+        created_at: f.created_at,
+      })),
     ];
-    
+
     // Sort by aura (highest first)
     combined.sort((a, b) => b.aura - a.aura);
-    
+
     setCombinedFriends(combined);
   }, [friends, offlineFriends]);
 
   const fetchProfile = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
+        .from("profiles")
+        .select("*")
+        .eq("id", user?.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
-      
+
       if (data) {
         setProfile(data);
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error("Error fetching profile:", error);
       throw error;
     }
   };
@@ -97,15 +111,15 @@ export default function Dashboard() {
   const fetchGlobalUsers = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('aura', { ascending: false })
+        .from("profiles")
+        .select("*")
+        .order("aura", { ascending: false })
         .limit(100);
 
       if (error) throw error;
       setGlobalUsers(data || []);
     } catch (error) {
-      console.error('Error fetching global users:', error);
+      console.error("Error fetching global users:", error);
       throw error;
     }
   };
@@ -113,17 +127,19 @@ export default function Dashboard() {
   const fetchFriends = async () => {
     try {
       const { data, error } = await supabase
-        .from('friends')
-        .select(`
+        .from("friends")
+        .select(
+          `
           *,
           friend:profiles!friends_friend_id_fkey(*)
-        `)
-        .eq('user_id', user?.id);
+        `
+        )
+        .eq("user_id", user?.id);
 
       if (error) throw error;
       setFriends(data || []);
     } catch (error) {
-      console.error('Error fetching friends:', error);
+      console.error("Error fetching friends:", error);
       throw error;
     }
   };
@@ -131,14 +147,14 @@ export default function Dashboard() {
   const fetchOfflineFriends = async () => {
     try {
       const { data, error } = await supabase
-        .from('offline_friends')
-        .select('*')
-        .eq('creator_id', user?.id);
+        .from("offline_friends")
+        .select("*")
+        .eq("creator_id", user?.id);
 
       if (error) throw error;
       setOfflineFriends(data || []);
     } catch (error) {
-      console.error('Error fetching offline friends:', error);
+      console.error("Error fetching offline friends:", error);
       throw error;
     }
   };
@@ -146,18 +162,18 @@ export default function Dashboard() {
   const deleteOfflineFriend = async (friendId: string) => {
     try {
       const { error } = await supabase
-        .from('offline_friends')
+        .from("offline_friends")
         .delete()
-        .eq('id', friendId)
-        .eq('creator_id', user?.id);
+        .eq("id", friendId)
+        .eq("creator_id", user?.id);
 
       if (error) throw error;
-      
+
       // Refresh offline friends
       fetchOfflineFriends();
     } catch (error) {
-      console.error('Error deleting offline friend:', error);
-      setError('Errore durante l\'eliminazione dell\'amico offline');
+      console.error("Error deleting offline friend:", error);
+      setError("Errore durante l'eliminazione dell'amico offline");
     }
   };
 
@@ -173,7 +189,7 @@ export default function Dashboard() {
 
   const handleProposalSubmitted = () => {
     setShowProposalModal(false);
-    setActiveTab('proposals');
+    setActiveTab("proposals");
   };
 
   const handleProposalAction = () => {
@@ -192,11 +208,11 @@ export default function Dashboard() {
 
   const formatAura = (aura) => {
     if (aura >= 1_000_000_000) {
-      return (aura / 1_000_000_000).toFixed(1) + 'b'; // Billion
+      return (aura / 1_000_000_000).toFixed(1) + "b"; // Billion
     } else if (aura >= 1_000_000) {
-      return (aura / 1_000_000).toFixed(1) + 'm'; // Million
+      return (aura / 1_000_000).toFixed(1) + "m"; // Million
     } else if (aura >= 1_000) {
-      return (aura / 1_000).toFixed(1) + 'k'; // Thousand
+      return (aura / 1_000).toFixed(1) + "k"; // Thousand
     }
     return aura.toString(); // For values less than 1000
   };
@@ -204,9 +220,9 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <Sidebar 
-        combinedFriends={combinedFriends} 
-        onFriendAdded={handleFriendAdded} 
+      <Sidebar
+        combinedFriends={combinedFriends}
+        onFriendAdded={handleFriendAdded}
       />
 
       {/* Main content */}
@@ -215,8 +231,15 @@ export default function Dashboard() {
           <div className="flex items-center justify-between px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold text-purple-600">Aura Tracker</h1>
             <div className="flex items-center space-x-4">
+              <select
+                value={i18n.language}
+                onChange={(e) => i18n.changeLanguage(e.target.value)}
+              >
+                <option value="en">English</option>
+                <option value="it">Italiano</option>
+              </select>
               <div className="text-right">
-                <p className="text-sm text-gray-500">Signed in as</p>
+                <p className="text-sm text-gray-500">{t("signedInAs")}</p>
                 <p className="font-medium">{profile?.username}</p>
               </div>
               <button
@@ -234,22 +257,27 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {/* Profile Card */}
             <div className="p-6 bg-white rounded-lg shadow md:col-span-1">
-              <ProfilePhotoUploader 
-                currentAvatar={profile?.avatar} 
-                onPhotoUpdated={fetchProfile} 
+              <ProfilePhotoUploader
+                currentAvatar={profile?.avatar}
+                onPhotoUpdated={fetchProfile}
               />
-              <h2 className="mt-4 mb-2 text-xl font-semibold text-center">{profile?.username}</h2>
-              <div className={`flex items-center justify-center p-4 mb-4 text-4xl font-bold rounded-lg ${
-                profile?.aura && profile.aura > 0 
-                  ? 'bg-green-100 text-green-600'
-                  : profile?.aura && profile.aura < 0
-                  ? 'bg-red-100 text-red-600'
-                  : 'bg-purple-100 text-purple-600'
-              }`}>
-                {profile?.aura && profile.aura > 0 ? '+' : ''}{formatAura(profile?.aura || 0)}
+              <h2 className="mt-4 mb-2 text-xl font-semibold text-center">
+                {profile?.username}
+              </h2>
+              <div
+                className={`flex items-center justify-center p-4 mb-4 text-4xl font-bold rounded-lg ${
+                  profile?.aura && profile.aura > 0
+                    ? "bg-green-100 text-green-600"
+                    : profile?.aura && profile.aura < 0
+                    ? "bg-red-100 text-red-600"
+                    : "bg-purple-100 text-purple-600"
+                }`}
+              >
+                {profile?.aura && profile.aura > 0 ? "+" : ""}
+                {formatAura(profile?.aura || 0)}
               </div>
               <p className="text-sm text-center text-gray-500">
-                La tua aura rappresenta la tua presenza e carisma, votata dai tuoi amici.
+                {t("descriptionAura")}
               </p>
             </div>
 
@@ -258,48 +286,47 @@ export default function Dashboard() {
               <div className="mb-6">
                 <div className="flex border-b overflow-x-auto">
                   <button
-                    onClick={() => setActiveTab('friends')}
+                    onClick={() => setActiveTab("friends")}
                     className={`py-2 px-4 font-medium whitespace-nowrap ${
-                      activeTab === 'friends'
-                        ? 'text-purple-600 border-b-2 border-purple-600'
-                        : 'text-gray-500 hover:text-gray-700'
+                      activeTab === "friends"
+                        ? "text-purple-600 border-b-2 border-purple-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
-                    <Users className="inline w-5 h-5 mr-2" />
-                    I tuoi amici
+                    <Users className="inline w-5 h-5 mr-2" />{t('yourFriends')}
                   </button>
                   <button
-                    onClick={() => setActiveTab('proposals')}
+                    onClick={() => setActiveTab("proposals")}
                     className={`py-2 px-4 font-medium whitespace-nowrap ${
-                      activeTab === 'proposals'
-                        ? 'text-purple-600 border-b-2 border-purple-600'
-                        : 'text-gray-500 hover:text-gray-700'
+                      activeTab === "proposals"
+                        ? "text-purple-600 border-b-2 border-purple-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     <ListPlus className="inline w-5 h-5 mr-2" />
-                    Proposte
+                    {t('proposte')}
                   </button>
                   <button
-                    onClick={() => setActiveTab('leaderboard')}
+                    onClick={() => setActiveTab("leaderboard")}
                     className={`py-2 px-4 font-medium whitespace-nowrap ${
-                      activeTab === 'leaderboard'
-                        ? 'text-purple-600 border-b-2 border-purple-600'
-                        : 'text-gray-500 hover:text-gray-700'
+                      activeTab === "leaderboard"
+                        ? "text-purple-600 border-b-2 border-purple-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     <Award className="inline w-5 h-5 mr-2" />
-                    Classifiche
+                    {t('classifiche')}
                   </button>
                   <button
-                    onClick={() => setActiveTab('history')}
+                    onClick={() => setActiveTab("history")}
                     className={`py-2 px-4 font-medium whitespace-nowrap ${
-                      activeTab === 'history'
-                        ? 'text-purple-600 border-b-2 border-purple-600'
-                        : 'text-gray-500 hover:text-gray-700'
+                      activeTab === "history"
+                        ? "text-purple-600 border-b-2 border-purple-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     <History className="inline w-5 h-5 mr-2" />
-                    Storico
+                    {t('storico')}
                   </button>
                 </div>
               </div>
@@ -310,13 +337,15 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {activeTab === 'friends' && (
+              {activeTab === "friends" && (
                 <>
                   {combinedFriends.length === 0 ? (
                     <div className="p-8 text-center text-gray-500 border-2 border-dashed rounded-lg">
                       <Users className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                      <p className="mb-2 text-lg font-medium">Nessun amico</p>
-                      <p>Aggiungi amici tramite la sidebar per iniziare a tracciare la loro aura!</p>
+                      <p className="mb-2 text-lg font-medium">{t('noFriends')}</p>
+                      <p>
+                        {t('addFriends')}
+                      </p>
                     </div>
                   ) : (
                     <div className="overflow-hidden bg-white border border-gray-200 rounded-md">
@@ -342,25 +371,29 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                   <div className="flex items-center">
-                                    <h3 className="font-medium">{friend.name}</h3>
+                                    <h3 className="font-medium">
+                                      {friend.name}
+                                    </h3>
                                     {friend.is_offline && (
                                       <span className="ml-2 px-2 py-0.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-full">
                                         Offline
                                       </span>
                                     )}
                                   </div>
-                                  
                                 </div>
                               </div>
                               <div className="flex items-center space-x-4">
-                                <div className={`px-3 py-1 text-lg font-semibold rounded-full ${
-                                  friend.aura > 0 
-                                    ? 'bg-green-100 text-green-700' 
-                                    : friend.aura < 0
-                                    ? 'bg-red-100 text-red-700'
-                                    : 'bg-gray-100 text-gray-700'
-                                }`}>
-                                  {friend?.aura && friend.aura > 0 ? '+' : ''}{formatAura(friend?.aura || 0)}
+                                <div
+                                  className={`px-3 py-1 text-lg font-semibold rounded-full ${
+                                    friend.aura > 0
+                                      ? "bg-green-100 text-green-700"
+                                      : friend.aura < 0
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {friend?.aura && friend.aura > 0 ? "+" : ""}
+                                  {formatAura(friend?.aura || 0)}
                                 </div>
                                 <div className="flex space-x-2">
                                   <button
@@ -372,7 +405,9 @@ export default function Dashboard() {
                                   </button>
                                   {friend.is_offline && (
                                     <button
-                                      onClick={() => deleteOfflineFriend(friend.id)}
+                                      onClick={() =>
+                                        deleteOfflineFriend(friend.id)
+                                      }
                                       className="px-2 py-1 text-sm text-white bg-gray-500 rounded hover:bg-gray-600"
                                       title="Elimina amico offline"
                                     >
@@ -390,28 +425,28 @@ export default function Dashboard() {
                 </>
               )}
 
-              {activeTab === 'proposals' && (
-                <ProposalsList 
+              {activeTab === "proposals" && (
+                <ProposalsList
                   combinedFriends={combinedFriends}
                   onProposalAction={handleProposalAction}
                 />
               )}
 
-              {activeTab === 'leaderboard' && (
+              {activeTab === "leaderboard" && (
                 <div className="space-y-8">
-                  <Leaderboard 
-                    title="Classifica Globale" 
+                  <Leaderboard
+                    title="Classifica Globale"
                     users={globalUsers}
                     isGlobal={true}
                   />
-                  <Leaderboard 
-                    title="Classifica Amici" 
+                  <Leaderboard
+                    title="Classifica Amici"
                     users={combinedFriends}
                   />
                 </div>
               )}
 
-              {activeTab === 'history' && user && (
+              {activeTab === "history" && user && (
                 <AuraHistory userId={user.id} />
               )}
             </div>
