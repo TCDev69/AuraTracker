@@ -213,6 +213,12 @@ export default function Dashboard() {
       return (aura / 1_000_000).toFixed(1) + "m"; // Million
     } else if (aura >= 1_000) {
       return (aura / 1_000).toFixed(1) + "k"; // Thousand
+    } else if (aura <= -1_000_000_000) {
+      return (aura / 1_000_000_000).toFixed(1) + "b"; // Billion
+    } else if (aura <= -1_000_000) {
+      return (aura / 1_000_000).toFixed(1) + "m"; // Million
+    } else if (aura <= -1_000) {
+      return (aura / 1_000).toFixed(1) + "k"; // Thousand
     }
     return aura.toString(); // For values less than 1000
   };
