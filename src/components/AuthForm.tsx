@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 type AuthMode = 'signin' | 'signup';
 
@@ -11,6 +12,7 @@ export default function AuthForm() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
   
   const { signIn, signUp } = useAuth();
 
@@ -29,7 +31,7 @@ export default function AuthForm() {
         await signUp(email, password, username);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('errors.unknown'));
     } finally {
       setLoading(false);
     }
@@ -55,7 +57,7 @@ export default function AuthForm() {
           {mode === 'signup' && (
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
+                {t('username')}
               </label>
               <div className="relative mt-1">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -69,7 +71,7 @@ export default function AuthForm() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="Your username"
+                  placeholder={t('yourUsername')}
                 />
               </div>
             </div>
@@ -77,7 +79,7 @@ export default function AuthForm() {
           
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
+              {t('email')}
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -92,14 +94,14 @@ export default function AuthForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                placeholder="your.email@example.com"
+                placeholder={t('testMail')}
               />
             </div>
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
+              {t('password')}
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">

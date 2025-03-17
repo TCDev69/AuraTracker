@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { X, Camera, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from "react-i18next";
 
 interface AddOfflineFriendModalProps {
   onClose: () => void;
@@ -16,6 +17,7 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +25,7 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
     setLoading(true);
 
     if (!name.trim()) {
-      setError('Per favore inserisci un nome');
+      setError(t('errors.nameRequired'));
       setLoading(false);
       return;
     }
@@ -45,7 +47,7 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
       onFriendAdded();
     } catch (err) {
       console.error('Error adding offline friend:', err);
-      setError('Errore nell\'aggiunta dell\'amico offline');
+      setError(t('errors.addFriends'));
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,7 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
 
     // Check file size (max 1MB)
     if (file.size > 1024 * 1024) {
-      setError('La foto è troppo grande. Dimensione massima: 1MB');
+      setError(t('errors.fileSize'));
       return;
     }
 
@@ -69,7 +71,7 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
       setAvatar(base64);
     } catch (err) {
       console.error('Error processing photo:', err);
-      setError('Errore nel caricamento della foto');
+      setError(t('errors.processingPhoto'));
     }
   };
 
@@ -86,7 +88,7 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Aggiungi amico offline</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('AddOfflineFriend')}</h2>
           <button
             onClick={onClose}
             className="p-1 text-gray-400 rounded-full hover:bg-gray-100 hover:text-gray-500"
@@ -134,7 +136,7 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
 
           <div className="mb-4">
             <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-700">
-              Nome *
+              {t('name')}
             </label>
             <input
               type="text"
@@ -142,14 +144,14 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Nome dell'amico"
+              placeholder={t('nameFriend')}
               required
             />
           </div>
 
           <div className="mb-6">
             <p className="mt-1 text-xs text-gray-500">
-              Questo amico sarà visibile solo a te e non influenzerà la classifica globale.
+              {t('OfflineFriendInfo')}
             </p>
           </div>
 
@@ -159,14 +161,14 @@ export default function AddOfflineFriendModal({ onClose, onFriendAdded }: AddOff
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
             >
-              Annulla
+              {t('Cancel')}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50"
             >
-              {loading ? 'Aggiunta in corso...' : 'Aggiungi amico'}
+              {loading ? t('addLoading') : t('addFriend')}
             </button>
           </div>
         </form>

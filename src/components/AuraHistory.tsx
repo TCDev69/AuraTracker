@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { AuraProposal, User } from '../types';
 import { ThumbsUp, ThumbsDown, Clock } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 interface AuraHistoryProps {
   userId: string;
@@ -15,6 +16,7 @@ export default function AuraHistory({ userId }: AuraHistoryProps) {
   const [proposals, setProposals] = useState<ExtendedProposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchAuraHistory();
@@ -91,8 +93,8 @@ export default function AuraHistory({ userId }: AuraHistoryProps) {
     return (
       <div className="p-8 text-center text-gray-500 border-2 border-dashed rounded-lg">
         <Clock className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-        <p className="mb-2 text-lg font-medium">Nessuna modifica</p>
-        <p>Non ci sono ancora modifiche alla tua aura.</p>
+        <p className="mb-2 text-lg font-medium">{t('noEdit')}</p>
+        <p>{t('noEditInfo')}</p>
       </div>
     );
   }
@@ -135,7 +137,7 @@ export default function AuraHistory({ userId }: AuraHistoryProps) {
               </div>
               <div className="mt-2">
                 <div className="flex items-center mb-1">
-                  <span className="text-sm text-gray-600 mr-2">Modifica proposta:</span>
+                  <span className="text-sm text-gray-600 mr-2">{t('editProposal')}</span>
                   <span className={`px-2 py-0.5 rounded-full text-sm font-medium ${
                     proposal.value > 0 
                       ? 'bg-green-100 text-green-700'
@@ -154,10 +156,10 @@ export default function AuraHistory({ userId }: AuraHistoryProps) {
                       : 'text-yellow-600'
                   }`}>
                     {proposal.status === 'approved'
-                      ? 'Approvata'
+                      ? t('approved')
                       : proposal.status === 'rejected'
-                      ? 'Respinta'
-                      : 'In attesa di approvazione'}
+                      ? t('rejected')
+                      : t('pending')}
                   </span>
                 </div>
               </div>

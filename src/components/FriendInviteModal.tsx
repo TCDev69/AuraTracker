@@ -3,6 +3,7 @@ import { X, Search, Clock, Check, Ban } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { User, FriendRequest } from '../types';
+import { useTranslation } from "react-i18next";
 
 interface FriendInviteModalProps {
   onClose: () => void;
@@ -17,6 +18,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     fetchPendingRequests();
@@ -79,7 +81,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
       if (checkError) throw checkError;
       
       if (existingRequest) {
-        setError('Esiste già una richiesta di amicizia in sospeso');
+        setError(t('errors.friendRequestPending'));
         setLoading(false);
         return;
       }
@@ -103,7 +105,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
       }, 1500);
     } catch (err) {
       console.error('Error sending friend request:', err);
-      setError('Errore nell\'invio della richiesta di amicizia');
+      setError(t('errors.sendFriendRequest'));
     } finally {
       setLoading(false);
     }
@@ -113,7 +115,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
     try {
       const { error } = await supabase
         .from('friend_requests')
-        .update({ status: accept ? 'accepted' : 'rejected' })
+        .update({ status: accept ? t('accepted') : t('rejected') })
         .eq('id', requestId);
 
       if (error) throw error;
@@ -124,7 +126,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
       }
     } catch (err) {
       console.error('Error handling friend request:', err);
-      setError('Errore nella gestione della richiesta');
+      setError(t('errors.handleFriendRequest'));
     }
   };
 
@@ -149,14 +151,14 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
 
         {success ? (
           <div className="p-3 mb-4 text-sm text-green-600 bg-green-100 rounded-md">
-            Richiesta di amicizia inviata con successo!
+            {t('friendRequestSent')}
           </div>
         ) : (
           <>
             {/* Pending Requests Section */}
             {pendingRequests.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Richieste in sospeso</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-3">{t('suspendedRequests')}</h3>
                 <div className="space-y-3">
                   {pendingRequests.map((request) => {
                     const isReceived = request.recipient_id === user?.id;
@@ -181,7 +183,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
                           <div>
                             <p className="font-medium">{otherUser?.username}</p>
                             <p className="text-sm text-gray-500">
-                              {isReceived ? 'Ti ha inviato una richiesta' : 'Richiesta inviata'}
+                              {isReceived ? t('friendRequestRecived') : t('friendRequestSent')}
                             </p>
                           </div>
                         </div>
@@ -190,14 +192,14 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
                             <button
                               onClick={() => handleRequestAction(request.id, true)}
                               className="p-2 text-green-600 bg-green-100 rounded-full hover:bg-green-200"
-                              title="Accetta"
+                              title={t('accept')}
                             >
                               <Check className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleRequestAction(request.id, false)}
                               className="p-2 text-red-600 bg-red-100 rounded-full hover:bg-red-200"
-                              title="Rifiuta"
+                              title={t('reject')}
                             >
                               <Ban className="w-5 h-5" />
                             </button>
@@ -214,7 +216,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
 
             {/* Search Section */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Cerca nuovi amici</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('searchFriends')}</h3>
               <div className="relative mb-4">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                   <Search className="w-5 h-5 text-gray-400" />
@@ -224,7 +226,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
                   value={username}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Cerca per username..."
+                  placeholder={t('searchUsername')}
                 />
               </div>
 
@@ -263,7 +265,7 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
                           {pendingRequests.some(r => 
                             (r.sender_id === user?.id && r.recipient_id === result.id) ||
                             (r.recipient_id === user?.id && r.sender_id === result.id)
-                          ) ? 'Richiesta pendente' : 'Invia richiesta'}
+                          ) ? t('pendingRequest') : t('sendRequest')}
                         </button>
                       </div>
                     </li>
@@ -271,11 +273,11 @@ export default function FriendInviteModal({ onClose, onInviteSent }: FriendInvit
                 </ul>
               ) : username.length >= 3 ? (
                 <div className="text-center py-4 text-gray-500">
-                  Nessun utente trovato
+                  {t('noUserFound')}
                 </div>
               ) : username.length > 0 ? (
                 <div className="text-center py-4 text-gray-500">
-                  Inserisci almeno 3 caratteri per cercare
+                  {t('searchMinChars')}
                 </div>
               ) : null}
             </div>

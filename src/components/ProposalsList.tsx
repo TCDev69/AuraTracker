@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { AuraProposal, ProposalVote, CombinedFriend } from '../types';
 import { ThumbsUp, ThumbsDown, Check, X, Clock } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 interface ProposalsListProps {
   combinedFriends: CombinedFriend[];
@@ -16,6 +17,7 @@ export default function ProposalsList({ combinedFriends, onProposalAction }: Pro
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [votingInProgress, setVotingInProgress] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchProposals();

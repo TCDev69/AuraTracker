@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Camera, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from "react-i18next";
 
 interface ProfilePhotoUploaderProps {
   currentAvatar?: string | null;
@@ -13,6 +14,7 @@ export default function ProfilePhotoUploader({ currentAvatar, onPhotoUpdated }: 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

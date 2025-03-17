@@ -3,6 +3,7 @@ import { X, ThumbsUp, ThumbsDown, Plus, Minus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { CombinedFriend } from '../types';
+import { useTranslation } from "react-i18next";
 
 interface AuraProposalModalProps {
   friend: CombinedFriend;
@@ -20,6 +21,7 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +29,14 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
     setLoading(true);
 
     if (!reason.trim()) {
-      setError('Per favore inserisci una motivazione');
+      setError(t('errors.reasonRequired'));
       setLoading(false);
       return;
     }
 
     const finalValue = isCustom ? parseInt(customValue) : value;
     if (isNaN(finalValue)) {
-      setError('Valore non valido');
+      setError(t('errors.invalidValue'));
       setLoading(false);
       return;
     }
@@ -79,7 +81,7 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
       onProposalSubmitted();
     } catch (err) {
       console.error('Error creating proposal:', err);
-      setError('Errore nella creazione della proposta');
+      setError(t('errors.creatingProposal'));
     } finally {
       setLoading(false);
     }
@@ -99,7 +101,7 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Proponi modifica aura</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('proposeAura')}</h2>
           <button
             onClick={onClose}
             className="p-1 text-gray-400 rounded-full hover:bg-gray-100 hover:text-gray-500"
@@ -117,7 +119,7 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <p className="mb-2 text-sm font-medium text-gray-700">
-              Stai proponendo una modifica dell'aura per:
+              {t('proposeAuraFor')}
             </p>
             <div className="flex items-center p-3 bg-gray-50 rounded-md">
               <div className="flex-shrink-0">
@@ -137,14 +139,14 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
               </div>
               <div className="ml-3">
                 <p className="font-medium">{friend.name}</p>
-                <p className="text-sm text-gray-500">Aura attuale: {friend.aura}</p>
+                <p className="text-sm text-gray-500">{t('nowAura')} {friend.aura}</p>
               </div>
             </div>
           </div>
 
           <div className="mb-6">
             <label className="block mb-2 text-sm font-medium text-gray-700">
-              Valore della modifica
+              {t('valueEdit')}
             </label>
             
             {/* Preset positive values */}
@@ -188,14 +190,14 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
             {/* Custom value input */}
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                O inserisci un valore personalizzato:
+                {t('customValue')}
               </label>
               <input
                 type="number"
                 value={customValue}
                 onChange={handleCustomValueChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Inserisci un valore..."
+                placeholder={t('addValue')}
               />
             </div>
           </div>
@@ -209,12 +211,12 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Spiega perché proponi questa modifica..."
+              placeholder={t('reasonEdit')}
               rows={3}
               required
             />
             <p className="mt-1 text-xs text-gray-500">
-              La modifica verrà applicata solo dopo l'approvazione della maggioranza degli amici.
+              {t('reasonEditInfo')}
             </p>
           </div>
 
@@ -224,14 +226,14 @@ export default function AuraProposalModal({ friend, onClose, onProposalSubmitted
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
             >
-              Annulla
+              {t('cancel')}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50"
             >
-              {loading ? 'Invio in corso...' : 'Invia proposta'}
+              {loading ? t('sendLoading') : t('sendProposal')}
             </button>
           </div>
         </form>

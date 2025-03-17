@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import FriendInviteModal from "./FriendInviteModal";
 import AddOfflineFriendModal from "./AddOfflineFriendModal";
+import { useTranslation } from "react-i18next";
 
 interface SidebarProps {
   combinedFriends: CombinedFriend[];
@@ -22,6 +23,7 @@ export default function Sidebar({
   const [showAddOfflineModal, setShowAddOfflineModal] = useState(false);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Top friend is the one with highest aura
   const topFriend = combinedFriends.length > 0 ? combinedFriends[0] : null;

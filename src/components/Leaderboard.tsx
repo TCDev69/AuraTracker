@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trophy } from 'lucide-react';
 import { User, CombinedFriend } from '../types';
+import { useTranslation } from "react-i18next";
 
 interface LeaderboardProps {
   title: string;
@@ -9,6 +10,8 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ title, users, isGlobal = false }: LeaderboardProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-4 border-b">
